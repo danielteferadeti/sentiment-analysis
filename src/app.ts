@@ -21,7 +21,7 @@ app.use(expressupload());
 app.use(cors());
 
 app.use("/api/v1/userContact", routes.userRouter);
-
+app.use("/api/v1/chat", routes.chatRouter);
 
 app.get("/", (req, res) => {
   let baseResponse = new BaseResponse();
