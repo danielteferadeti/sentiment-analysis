@@ -1,16 +1,13 @@
 import Joi from "joi";
-import { Schema } from "mongoose";
 
-export const userValidator = (user) => {
+const requiredRule = { post: (schema) => schema.required(), put: (schema => schema.optional()) }
+
+export const reviewValidation = (review) => {
   const schema = Joi.object({
     _id: Joi.forbidden(),
-    email: Joi.string().min(6).email().trim().lowercase(),
-    firstName: Joi.string().required().trim(),
-    lastName: Joi.string().required().trim(),
-    examType: Joi.string().required().trim(),
-    department: Joi.string().allow('').default("Department goes here").trim().optional(),
-    fieldOfStudy: Joi.string().allow('').default("field goes here.").trim().optional(),
-    phoneNumber: Joi.string().required()
+    comment: Joi.string(),
+    sentiment: Joi.string().valid('Positive', 'Negative', 'Neutral'),
+    userId: Joi.string().hex().length(24).required()
   });
-  return schema.validate(user, { abortEarly: false });
+  return schema.validate(review, { abortEarly: false });
 };

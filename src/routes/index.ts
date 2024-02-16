@@ -1,7 +1,9 @@
-import userRouter from "./user"
-import chatRouter from "./chat"
+// package all routes in a single file
+
+import userRouter from "./user";
+import reviewRouter from "./review"
 
 export default {
-    userRouter,
-    chatRouter
+  userRouter,
+  reviewRouter
 };

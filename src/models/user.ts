@@ -1,50 +1,41 @@
 import { Schema, Document, Model, model } from 'mongoose';
-import Joi from 'joi';
+import * as bcrypt from "bcrypt";
+import Joi, { number } from 'joi';
 
 export interface IUserDocument extends Document {
-  email: string;
-  firstName: string;
-  lastName: string;
-  examType: string;
-  department: string;
-  fieldOfStudy: string;
-  phoneNumber: string;
-  createdAt: Date;
-  updatedAt: Date;
+  email_phone: string
+  password: string
+  createdAt: Date
+  updatedAt: Date
 }
 
-const UserSchema: Schema<IUserDocument> = new Schema(
+interface UserModel extends Model<IUserDocument>{
+  login(email_phone: string, password: string): any
+}
+
+
+const UserSchema: Schema<IUserDocument, UserModel> = new Schema(
   {
-    email: {
+    email_phone: {
       type: String,
+      required: [true, "email or phone number is required"],
       lowercase: true,
       trim: true,
       unique: true,
-      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
-    },
-    firstName: {
+      index:true,
+      validate: {
+        validator: function (value) {
+          const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+          const phoneRegex = /^\+\d{11,}$/; // Update this regex for your specific phone number format
+          return emailRegex.test(value) || phoneRegex.test(value);
+        },
+        message: 'Please fill a valid email address or phone number'
+      }
+   },
+    password: {
       type: String,
-      required: [true, 'Please enter your first name!']
-    },
-    lastName: {
-      type: String,
-      required: [true, 'Please enter your last name!']
-    },
-    examType: {
-      type: String,
-      required: true,
-    },
-    department: {
-      type: String,
-      default: "Department goes here"
-    },
-    fieldOfStudy: {
-      type: String,
-      default: "field goes here."
-    },
-    phoneNumber: {
-      type: String,
-      required: true,
+      required: [true, 'Please enter a password'],
+      minlength: [6, 'Minimum password length is 6 characters'],
     }
   },
   {
@@ -53,8 +44,54 @@ const UserSchema: Schema<IUserDocument> = new Schema(
       updatedAt: 'updatedAt'
     }
   }
-);
+)
 
-const User = model<IUserDocument>('User', UserSchema);
+UserSchema.pre('remove', { document: true, query: false }, async function (next) {
+  next()
+})
 
-export default User;
+// fire a function before user is saved to db
+UserSchema.pre('save', async function(next) {
+  const salt = await bcrypt.genSalt();
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+// static method to login a user
+UserSchema.statics.login = async function(email_phone, password) {
+  const user = await this.findOne({ email_phone });
+  if (user) {
+    const auth = await bcrypt.compare(password, user.password);
+    if (auth) {
+      return user;
+    }
+    throw Error('incorrect email/phone_number or password!');
+  }
+  throw Error('incorrect email/phone_number or password!');
+};
+
+
+const User = model<IUserDocument, UserModel>('User', UserSchema)
+
+export const userValidation = Joi.object({
+  email_phone: Joi.string().min(6).required()
+  .custom((value, helpers) => {
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const phoneRegex = /^\+\d{11,}$/; //phone numbers with "+" sign
+
+    if (!emailRegex.test(value) && !phoneRegex.test(value)) {
+      return helpers.error('any.invalid');
+    }
+    return value;
+  }).trim().lowercase().messages({
+    'any.invalid': 'Please fill a valid email address or phone number',
+  }),
+  password: Joi.string().min(6).required().trim(),
+});
+
+export const updateUserValidation = Joi.object({
+  firstName: Joi.string().trim(),
+  lastName: Joi.string().trim(),
+});
+
+export default User

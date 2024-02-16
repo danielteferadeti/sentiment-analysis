@@ -1,7 +1,11 @@
 import { Router } from "express";
-import userControllers from "../controllers/user";
+import UserControllers from "../controllers/user";
+import isAuthenticated from "../middlewares/authenticate";
 
 const router = Router();
-router.post("/", userControllers.createUserContact);
+
+router.post("/signup", UserControllers.userSignup);
+router.post("/login", UserControllers.userLogin);
+router.get("/logout", isAuthenticated, UserControllers.logoutUser);
 
 export default router;

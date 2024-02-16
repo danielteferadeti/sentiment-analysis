@@ -9,6 +9,6 @@ export default function errorHandler(err: any, req: Request, res: Response, next
 	let baseResponse = new BaseResponse();
     baseResponse.message = err.message
     baseResponse.errors.push(err.message)
-	res.status(400).json({...baseResponse})
+	res.status(500).json({...baseResponse})
 	return
 }
