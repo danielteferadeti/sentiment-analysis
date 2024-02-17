@@ -6,7 +6,7 @@ import { commentSentimentAnalysis } from './chat';
 
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = req.body.user?._id || "65cfccd8fe7f427065b3e628"
+        const userId = req.body.user?._id || "65d10c0ffb83e57ea07aee46"
         const { comment } = req.body;
         const analysis = await commentSentimentAnalysis(comment.toString())
         const sentiment =  (analysis.toString() === "Positive" || analysis.toString() === "Negative") ? analysis.toString() as Sentiment : "Neutral" as Sentiment
