@@ -5,6 +5,7 @@ import Joi, { number } from 'joi';
 export interface IUserDocument extends Document {
   email_phone: string
   password: string
+  fullName: string
   createdAt: Date
   updatedAt: Date
 }
@@ -36,6 +37,10 @@ const UserSchema: Schema<IUserDocument, UserModel> = new Schema(
       type: String,
       required: [true, 'Please enter a password'],
       minlength: [6, 'Minimum password length is 6 characters'],
+    },
+    fullName: {
+      type: String,
+      default: "Full Name"
     }
   },
   {
@@ -87,11 +92,11 @@ export const userValidation = Joi.object({
     'any.invalid': 'Please fill a valid email address or phone number',
   }),
   password: Joi.string().min(6).required().trim(),
+  fullName: Joi.string().default("Full Name").trim(),
 });
 
 export const updateUserValidation = Joi.object({
-  firstName: Joi.string().trim(),
-  lastName: Joi.string().trim(),
+  fullName: Joi.string().trim(),
 });
 
 export default User

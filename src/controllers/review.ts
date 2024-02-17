@@ -36,7 +36,7 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
 
 const getReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reviews = await Review.find().lean().exec();
+        const reviews = await Review.find().populate("userId").lean().exec();
 
         let baseResponse = new BaseResponse();
         baseResponse.success = true;

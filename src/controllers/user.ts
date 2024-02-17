@@ -56,11 +56,11 @@ const userLogin = async (req: Request, res: Response, next) => {
 
 const userSignup = async (req, res, next) => {
   try {
-    let {email_phone, password } = req.body;
+    let {email_phone, password, fullName} = req.body;
 
     let baseResponse = new BaseResponse();
 
-    const validatedUser = await userValidation.validateAsync( {email_phone, password });
+    const validatedUser = await userValidation.validateAsync( {email_phone, password, fullName });
 
     //check if user exists with email
     const userByEmail = await User.findOne({ email_phone: validatedUser.email_phone }).lean().exec();
