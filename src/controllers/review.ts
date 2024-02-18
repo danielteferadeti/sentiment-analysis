@@ -11,7 +11,7 @@ const createReview = async (req: Request, res: Response, next: NextFunction) => 
         const analysis = await commentSentimentAnalysis(comment.toString())
         const sentiment =  (analysis.toString() === "Positive" || analysis.toString() === "Negative") ? analysis.toString() as Sentiment : "Neutral" as Sentiment
 
-        const userInput = { comment, sentiment, userId.toString() };
+        const userInput = { comment, sentiment, userId: userId.toString() };
 
         const { error, value } = reviewValidation(userInput);
 
